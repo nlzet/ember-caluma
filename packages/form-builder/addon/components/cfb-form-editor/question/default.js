@@ -43,12 +43,26 @@ export default class CfbFormEditorQuestionDefault extends Component {
       );
 
       // Format option changesets to match the raw format needed in lib.
+      const edges = Array.isArray(raw.options)
+        ? raw.options
+        : raw.options?.edges || [];
+
+      const options = edges
+        .map((edge) => edge.node)
+        .map((v) =>
+          v?.get
+            ? {
+                ...v.get("data"),
+                ...v.get("change"),
+              }
+            : { ...v },
+        );
+
       raw[key] = {
-        edges: raw.options.map((node) => {
+        edges: options.map((node) => {
           return {
             node: {
-              ...node.get("data"),
-              ...node.get("change"),
+              ...node,
               // While we want the real value of the option, the option should never
               // be hidden in the form-builder. We need to set a value here as no
               // value will lead to a Jexl error.
